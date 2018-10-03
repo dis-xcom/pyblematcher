@@ -1,0 +1,34 @@
+templates:
+- name: traceback
+  roles: '(.*|master|compute)'
+  query:
+  - string: 1
+    fast_keyword: Traceback
+    groups:
+    - prefix: '(.*)'
+    - tracestart: '(Traceback \(most recent call last\))'
+    store:
+    - tracestart
+  - string: 2
+    skip_keyword: 'stdout output'
+    groups:
+    - prefix
+    - filename: '(\s{2}File .*,)(?: line .*,)( in .*)'
+    store:
+    - filename
+  - string: 3
+    skip_keyword: 'stdout output'
+    repeat_string_if_matches: 2
+    groups:
+    - prefix
+    - instruction: '(\s{2}.*)'
+    store:
+    - instruction
+  - string: 4
+    skip_keyword: 'stdout output'
+    repeat_string_if_matches: 2
+    groups:
+    - prefix
+    - error_string: '(\S+)'
+    store:
+    - error_string
